@@ -1,0 +1,77 @@
+// https://developer.android.com/training/notify-user/build-notificatio
+
+// chuông khi thông báo: https://stackoverflow.com/questions/15809399/android-notification-sound
+
+
+NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(yourContext.getApplicationContext(), "notify_001");
+Intent ii = new Intent(yourContext.getApplicationContext(), YourMainActivty.class);
+PendingIntent pendingIntent = PendingIntent.getActivity(yourContext, 0, ii, 0);
+
+NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+bigText.bigText(notificationsTextDetailMode); //detail mode is the "expanded" notification
+bigText.setBigContentTitle(notificationTitleDetailMode);
+bigText.setSummaryText(usuallyAppVersionOrNumberOfNotifications); //small text under notification
+
+mBuilder.setContentIntent(pendingIntent);
+mBuilder.setSmallIcon(R.mipmap.ic_launcher); //notification icon
+mBuilder.setContentTitle(notificationTitle); //main title
+mBuilder.setContentText(notificationText); //main text when you "haven't expanded" the notification yet
+mBuilder.setPriority(Notification.PRIORITY_MAX);
+mBuilder.setStyle(bigText);
+
+NotificationManager mNotificationManager = (NotificationManager) yourContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+NotificationChannel channel = new NotificationChannel("notify_001",
+                                                      "Channel human readable title",
+                                                      NotificationManager.IMPORTANCE_DEFAULT);
+if (mNotificationManager != null) {
+  mNotificationManager.createNotificationChannel(channel);
+}
+
+if (mNotificationManager != null) {
+  mNotificationManager.notify(0, mBuilder.build());
+}
+
+// Rõ ràng hơn
+B1:
+implementation 'androidx.core:core-ktx:1.6.0'
+
+B2:
+private fun createNotificationChannel() {
+    // Create the NotificationChannel, but only on API 26+ because
+    // the NotificationChannel class is new and not in the support library
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val name = getString(R.string.channel_name)
+        val descriptionText = getString(R.string.channel_description)
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel("My Notification", name, importance).apply {
+            description = descriptionText
+        }
+        // Register the channel with the system
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+}
+
+val notification : Button = findViewById(R.id.btnNotification)
+notification.setOnClickListener {
+          val builder : NotificationCompat.Builder = NotificationCompat.Builder(this,"My Notification")
+            builder.setContentTitle("Title")
+                .setContentText("Hello World")
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            
+	//Âm thanh lên khi  có thông báo
+            val alarmSound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                builder.setSound(alarmSound)
+                .setAutoCancel(true)
+	//Rung khi có thông báo
+	 val notification = builder.build()
+            notification.defaults = Notification.DEFAULT_LIGHTS
+            notification.defaults = Notification.DEFAULT_VIBRATE
+
+            val managerCompat = NotificationManagerCompat.from(this)
+            managerCompat.notify(1,notification)
+        }
